@@ -29,15 +29,7 @@ python wp_sec_audit.py -b targets.txt
 
 ===============
 
-## Installation   
-
-bash
-## 🚀 Quick Start
-
-### Installation
-
-⬆️ **Those three backticks ALONE exit bash mode**
-
+## Installation 
 ---
 
 ## ✅ Your Corrected Installation Section
