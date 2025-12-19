@@ -3,10 +3,21 @@
 WP-SEC-AUDIT: WordPress Security Auditor
 Main entry point
 """
+#!/usr/bin/env python3
+"""
+WP-SEC-AUDIT: WordPress Security Auditor
+Main entry point
+"""
 
 import sys
 import argparse
+import warnings
+import urllib3
 from colorama import init
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+warnings.filterwarnings('ignore')
 
 # Import our modules
 from modules.scanner import WordPressScanner
