@@ -386,7 +386,7 @@ class ReportGenerator:
             if outdated_components:
                 compound_bonus += 5
         
-        critical_count = sum([
+               critical_count = sum([
             1 for f in files if any(critical in f.get('path', '') 
                                   for critical in ['wp-config', 'debug.log']),
             1 for v in vulns if v.get('severity') == 'critical'
