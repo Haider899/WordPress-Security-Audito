@@ -37,7 +37,7 @@ class ReportGenerator:
             return self._generate_html_report(results)
         elif format == 'markdown' or format == 'md':
             return self._generate_markdown_report(results)
-        else:  # text format (default)
+        else:
             return self._generate_text_report(results)
     
     def _generate_text_report(self, results):
@@ -55,7 +55,6 @@ class ReportGenerator:
         report.append("")
         
         if results.get('wordpress'):
-            # User enumeration section
             if results.get('users_exposed'):
                 report.append("⚠️ CRITICAL: USER ENUMERATION VULNERABILITY")
                 report.append("-" * 50)
@@ -78,7 +77,6 @@ class ReportGenerator:
                 report.append("✅ User enumeration appears to be blocked")
                 report.append("")
             
-            # CVEs section
             cves = results.get('cves', [])
             if cves:
                 report.append(f"💀 {len(cves)} KNOWN CVEs DETECTED")
@@ -91,7 +89,6 @@ class ReportGenerator:
                     report.append(f"  ... and {len(cves) - 10} more CVEs")
                 report.append("")
             
-            # Vulnerabilities section
             vulns = results.get('vulnerabilities', [])
             if vulns:
                 report.append(f"⚠️ {len(vulns)} VULNERABILITIES FOUND")
@@ -104,7 +101,6 @@ class ReportGenerator:
                         report.append(f"    Solution: {vuln.get('solution')}")
                 report.append("")
             
-            # Sensitive files section
             files = results.get('sensitive_files', [])
             if files:
                 critical_files = [f for f in files if f.get('critical')]
@@ -117,7 +113,6 @@ class ReportGenerator:
                             report.append(f"    Status Code: {file.get('status_code')}")
                 report.append("")
             
-            # Directory listings section
             dirs = results.get('directory_listings', [])
             if dirs:
                 report.append(f"📁 {len(dirs)} DIRECTORY LISTINGS ENABLED")
@@ -126,7 +121,6 @@ class ReportGenerator:
                     report.append(f"  • {directory.get('directory', 'Unknown')}")
                 report.append("")
             
-            # Plugins section
             plugins = results.get('plugins', [])
             if plugins:
                 report.append(f"🔌 {len(plugins)} PLUGINS DETECTED")
@@ -140,7 +134,6 @@ class ReportGenerator:
                     report.append(f"  ... and {len(plugins) - 10} more plugins")
                 report.append("")
             
-            # Themes section
             themes = results.get('themes', [])
             if themes:
                 report.append(f"🎨 {len(themes)} THEMES DETECTED")
@@ -152,7 +145,6 @@ class ReportGenerator:
                     report.append(theme_info)
                 report.append("")
             
-            # Configuration issues
             config_issues = results.get('config_issues', [])
             if config_issues:
                 report.append(f"⚙️ {len(config_issues)} CONFIGURATION ISSUES")
@@ -161,7 +153,6 @@ class ReportGenerator:
                     report.append(f"  • {issue}")
                 report.append("")
             
-            # Security issues summary
             issues = results.get('issues', [])
             if issues:
                 report.append(f"🚨 {len(issues)} SECURITY ISSUES IDENTIFIED")
@@ -170,7 +161,6 @@ class ReportGenerator:
                     report.append(f"  • {issue}")
                 report.append("")
             
-            # Risk Assessment
             report.append("📊 RISK ASSESSMENT")
             report.append("-" * 50)
             risk_score = self._calculate_risk_score(results)
@@ -180,7 +170,6 @@ class ReportGenerator:
             report.append(f"Risk Level: {risk_level}")
             report.append("")
             
-            # Recommendations
             report.append("💡 SECURITY RECOMMENDATIONS")
             report.append("-" * 50)
             recommendations = self._generate_recommendations(results)
@@ -206,12 +195,9 @@ class ReportGenerator:
         return "\n".join(report)
     
     def _calculate_risk_score(self, results):
-        """
-        Intelligent risk scoring based on vulnerability severity, context, and impact
-        """
+        """Intelligent risk scoring based on vulnerability severity"""
         score = 0
         
-        # 1. USER ENUMERATION
         if results.get('users_exposed'):
             users = results.get('users', [])
             user_count = len(users)
@@ -244,7 +230,6 @@ class ReportGenerator:
             user_score = min(40, base_score + (user_count * user_multiplier) + admin_bonus + email_bonus)
             score += user_score
         
-        # 2. CVE SCORING
         cves = results.get('cves', [])
         if cves:
             cve_score = 0
@@ -286,7 +271,6 @@ class ReportGenerator:
             cve_score = min(35, cve_score)
             score += cve_score
         
-        # 3. VULNERABILITY SCORING
         vulns = results.get('vulnerabilities', [])
         if vulns:
             vuln_score = 0
@@ -336,7 +320,6 @@ class ReportGenerator:
             vuln_score = min(25, vuln_score)
             score += vuln_score
         
-        # 4. SENSITIVE FILES
         files = results.get('sensitive_files', [])
         if files:
             file_score = 0
@@ -372,7 +355,6 @@ class ReportGenerator:
             file_score = min(20, file_score)
             score += file_score
         
-        # 5. COMPOUND RISK ANALYSIS
         compound_bonus = 0
         
         wpconfig_exposed = any('wp-config' in f.get('path', '') for f in files)
@@ -386,9 +368,9 @@ class ReportGenerator:
             if outdated_components:
                 compound_bonus += 5
         
-               critical_count = sum([
-            1 for f in files if any(critical in f.get('path', '') 
-                                  for critical in ['wp-config', 'debug.log']),
+        critical_count = sum([
+            1 for f in files if any(critical in f.get('path', '') for critical in ['wp-config', 'debug.log'])
+        ] + [
             1 for v in vulns if v.get('severity') == 'critical'
         ])
         
@@ -400,7 +382,6 @@ class ReportGenerator:
         compound_bonus = min(15, compound_bonus)
         score += compound_bonus
         
-        # 6. FINAL ADJUSTMENTS
         score = min(100, score)
         
         if score > 0 and score < 10:
